@@ -1,20 +1,23 @@
-// This file is responsible for establishing the connection to your database.
+// config/db.js
 const mongoose = require('mongoose');
 
-/**
- * Connects to the database using the URI from environment variables.
- */
-const connectDB = async () => {
-    try {
-        // We are removing 'useNewUrlParser' and 'useUnifiedTopology'
-        // as they are deprecated and have no effect in recent Mongoose versions.
-        const conn = await mongoose.connect(process.env.MONGODB_URI);
+let cached = global.mongoose;
+if (!cached) {
+    cached = global.mongoose = { conn: null, promise: null };
+}
 
-        console.log(`MongoDB Connected: ${conn.connection.host}`);
-    } catch (error) {
-        console.error(`Error connecting to database: ${error.message}`);
-        process.exit(1); // Exit process with failure
+async function connectToDatabase() {
+    if (cached.conn) {
+        return cached.conn;
     }
-};
+    if (!cached.promise) {
+        cached.promise = mongoose.connect(process.env.MONGO_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+        }).then((mongoose) => mongoose);
+    }
+    cached.conn = await cached.promise;
+    return cached.conn;
+}
 
-module.exports = connectDB;
+module.exports = { connectToDatabase };

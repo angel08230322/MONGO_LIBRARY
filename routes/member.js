@@ -1,21 +1,11 @@
 const express = require('express');
-const {
-    getAllMembers,
-    createMember,
-    updateMember,
-    deleteMember,
-} = require('/Users/Admin/Documents/back_end_LIBRARY/controllers/member');
-
 const router = express.Router();
+const { getAllMembers, getMemberById, createMember, deleteMember } = require('../controllers/member.js');
 
-// Routes for base path /api/members
-router.route('/')
-    .get(getAllMembers)
-    .post(createMember);
-
-// Routes for specific member ID /api/members/:id
-router.route('/:id')
-    .put(updateMember)
-    .delete(deleteMember);
+// Define routes with proper handler functions
+router.get('/', getAllMembers);
+router.get('/:id', getMemberById);
+router.post('/', createMember);
+router.delete('/:id', deleteMember);
 
 module.exports = router;
